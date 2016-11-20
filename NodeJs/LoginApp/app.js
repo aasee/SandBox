@@ -10,7 +10,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
-mongoose = connect('mongodb://localhost/loginapp');
+mongoose.connect('mongodb://localhost/loginapp');
 var db = mongoose.connection;
 
 var routes = require('./routes/index');
@@ -20,23 +20,23 @@ var users = require('./routes/users');
 var app = express();
 
 //view engine
-app.set('views', path.join(__dirname,'views'));
-app.engine('handlebars', exphbs({defaultLayout:'layout'}));
+app.set('views', path.join(__dirname, 'views'));
+app.engine('handlebars', exphbs({ defaultLayout: 'layout' }));
 app.set('view engine', 'handlebars');
 
 //BodyParser Middlewares
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 //set static folder
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Express session
 app.use(session({
-    secret : 'secret',
-    saveUninitialized: true,
-    resave: true
+  secret: 'secret',
+  saveUninitialized: true,
+  resave: true
 }));
 
 //passport init
@@ -47,18 +47,18 @@ app.use(passport.session());
 // Express validator
 // In this example, the formParam value is going to get morphed into form body format useful for printing.
 app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-      var namespace = param.split('.')
-      , root    = namespace.shift()
+  errorFormatter: function (param, msg, value) {
+    var namespace = param.split('.')
+      , root = namespace.shift()
       , formParam = root;
 
-    while(namespace.length) {
+    while (namespace.length) {
       formParam += '[' + namespace.shift() + ']';
     }
     return {
-      param : formParam,
-      msg   : msg,
-      value : value
+      param: formParam,
+      msg: msg,
+      value: value
     };
   }
 }));
@@ -67,18 +67,20 @@ app.use(expressValidator({
 app.use(flash());
 
 //Global Vars
-app.use(function(req, res, next){
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error_msg');
-    res.locals.error = req.flash('error');
+app.use(function (req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.user || null;
+  next();
 });
 
-app.use('/',routes);
-app.use('/users',users);
+app.use('/', routes);
+app.use('/users', users);
 
 //set port
-app.set('port',(process.env.PORT || 3000));
+app.set('port', (process.env.PORT || 3000));
 
-app.listen(app.get('port'),function(){
-    console.log('serverstarted on port'+ app.get('port'));
+app.listen(app.get('port'), function () {
+  console.log('server started on port ' + app.get('port'));
 });
